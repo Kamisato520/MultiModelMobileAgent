@@ -1,0 +1,35 @@
+功能与示例
+连接设备
+
+接口：POST /connect-device
+输入：{"device_ip": "192.168.1.101"}
+调用：adb connect 192.168.1.101
+安装 APK
+
+接口：POST /install-app
+输入：{"apk_path": "/path/to/app.apk"}
+调用：adb install /path/to/app.apk
+模拟按键
+
+接口：POST /send-key-event
+输入：{"key_code": 26} # 26是电源键的代码
+调用：adb shell input keyevent 26
+滑动屏幕
+
+接口：POST /swipe-screen
+输入：{"x1": 100, "y1": 200, "x2": 300, "y2": 400, "duration": 500}
+调用：adb shell input swipe 100 200 300 400 500
+输入文字
+
+接口：POST /input-text
+输入：{"text": "Hello World"}
+调用：adb shell input text Hello%World
+运行方式
+启动服务：
+
+bash
+复制代码
+uvicorn adb_service:app --host 0.0.0.0 --port 8002
+调用接口：
+
+使用工具如 Postman 或 cURL 调用上述接口完成对应的手机操作。
