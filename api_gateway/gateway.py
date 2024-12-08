@@ -16,7 +16,15 @@ def user_input(payload: dict):
         return model_response.json()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calling model service: {str(e)}")
-
+    """
+    转发用户请求到模型服务
+    """
+    try:
+        model_response = requests.post("http://localhost:8001/process-request", json=payload)
+        model_response.raise_for_status()
+        return model_response.json()
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"模型服务调用失败：{e}")
 @app.post("/task-status")
 def task_status(payload: dict):
     try:

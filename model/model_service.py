@@ -45,3 +45,32 @@ def process_request(payload: dict):
             raise HTTPException(status_code=response.status_code, detail="Error from model service")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Model API Error: {str(e)}")
+    """
+    调用 OCR 和大模型生成响应
+    """
+    image_url = payload.get("image_url", None)
+    user_input = payload.get("user_input", "")
+    system_prompt = payload.get("system_prompt", "You are a helpful assistant.")
+
+    # 调用 OCR 服务
+    ocr_text = ""
+    if image_url:
+        try:
+            ocr_response = requests.post("http://localhost:8006/process-image", json={"image_url": image_url})
+            ocr_response.raise_for_status()
+            ocr_text = ocr_response.json().get("ocr_text", "")
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=500, detail=f"OCR 服务调用失败：{e}")
+
+    try:
+        # 调用大模型
+        response = client.chat.completions.create(
+            model=config["model_name"],
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"{user_input}\nOCR 内容: {ocr_text}"}
+            ]
+        )
+        return {"response": response.choices[0].message.content.strip()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"模型调用失败：{e}")
