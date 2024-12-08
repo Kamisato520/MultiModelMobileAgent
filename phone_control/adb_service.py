@@ -53,3 +53,13 @@ def input_text(text: str):
     sanitized_text = text.replace(" ", "%s")
     result = run_adb_command(f"shell input text {sanitized_text}")
     return {"message": result}
+@app.post("/execute-command")
+def execute_command(command: str):
+    """
+    执行 ADB 指令
+    """
+    try:
+        result = subprocess.check_output(["adb"] + command.split(), stderr=subprocess.STDOUT)
+        return {"result": result.decode("utf-8")}
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(status_code=500, detail=f"ADB 命令执行失败：{e.output.decode('utf-8')}")

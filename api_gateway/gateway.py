@@ -3,7 +3,8 @@ import requests
 
 # 确保有 app 定义
 app = FastAPI()
-
+# 替换为新的网站地址
+MODEL_SERVICE_URL = "https://www.myexample.com/api"
 @app.get("/")
 def read_root():
     return {"message": "API Gateway is running"}
@@ -12,19 +13,12 @@ def read_root():
 def user_input(payload: dict):
     try:
         # 路由到模型服务
-        model_response = requests.post("http://model_service:8001/process-request", json=payload)
-        return model_response.json()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error calling model service: {str(e)}")
-    """
-    转发用户请求到模型服务
-    """
-    try:
-        model_response = requests.post("http://localhost:8001/process-request", json=payload)
+        model_response = requests.post(f"{MODEL_SERVICE_URL}/process-request", json=payload)
         model_response.raise_for_status()
         return model_response.json()
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"模型服务调用失败：{e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"调用大模型失败：{e}")
+
 @app.post("/task-status")
 def task_status(payload: dict):
     try:

@@ -56,7 +56,7 @@ def process_request(payload: dict):
     ocr_text = ""
     if image_url:
         try:
-            ocr_response = requests.post("http://localhost:8006/process-image", json={"image_url": image_url})
+            ocr_response = requests.post("https://dashscope.aliyuncs.com/compatible-mode/v1", json={"image_url": image_url})
             ocr_response.raise_for_status()
             ocr_text = ocr_response.json().get("ocr_text", "")
         except requests.exceptions.RequestException as e:
