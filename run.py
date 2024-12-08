@@ -9,6 +9,7 @@ services = {
     "phone_control": {"port": 8002, "path": "phone_control/adb_service.py"},
     "task_manager": {"port": 8003, "path": "task_manager/task_scheduler.py"},
     "feedback_service": {"port": 8004, "path": "feedback/feedback_service.py"},
+    "ocr_service": {"port": 8006, "path": "ocr_service/ocr_service.py"},
     "cloud_storage": {"port": 8005, "path": "cloud_storage/storage_service.py"},
 }
 
