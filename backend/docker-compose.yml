@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  api_gateway:
+    build: ./api_gateway
+    ports:
+      - "8000:8000"
+
+  model_service:
+    build: ./model
+    ports:
+      - "8001:8001"
+
+  phone_control:
+    build: ./phone_control
+    ports:
+      - "8002:8002"
+
+  task_manager:
+    build: ./task_manager
+    ports:
+      - "8003:8003"
+
+  feedback_service:
+    build: ./feedback
+    ports:
+      - "8004:8004"
+
+  cloud_storage:
+    build: ./cloud_storage
+    ports:
+      - "8005:8005"
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
