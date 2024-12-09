@@ -1,3 +1,7 @@
+# run.py
+# 本文件用于启动所有服务，确保各个模块可以正常运行并且相互协作。
+# 启动过程中，会初始化所有 FastAPI 服务并运行它们。
+
 import subprocess
 import time
 import os
@@ -7,37 +11,30 @@ services = {
     "api_gateway": {"port": 8000, "path": "api_gateway/gateway.py"},
     "model_service": {"port": 8001, "path": "model/model_service.py"},
     "phone_control": {"port": 8002, "path": "phone_control/adb_service.py"},
-    "task_manager": {"port": 8003, "path": "task_manager/task_scheduler.py"}
+    "ocr_service": {"port": 8006, "path": "ocr_service/ocr_service.py"},
 }
 
-# 启动单个服务
 def start_service(name, config):
-    port = config["port"]
-    path = config["path"]
+    """
+    启动单个服务并捕获输出
+    """
+    try:
+        print(f"[INFO] Starting {name} on port {config['port']}...")
+        subprocess.Popen(
+            ["uvicorn", f"{config['path']}:app", "--host", "127.0.0.1", "--port", str(config['port'])],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    except Exception as e:
+        print(f"[ERROR] 启动服务 {name} 失败：{e}")
 
-    print(f"[INFO] Starting {name} on port {port}...")
-    subprocess.Popen(
-        ["uvicorn", path + ":app", "--host", "127.0.0.1", "--port", str(port)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-
-# 启动所有服务
-def start_all_services():
+if __name__ == "__main__":
+    print("[INFO] 启动所有服务...")
     for name, config in services.items():
         start_service(name, config)
-
-
-# 主函数
-if __name__ == "__main__":
-    print("[INFO] Starting all services...")
-    start_all_services()
-    print("[INFO] All services started. Press Ctrl+C to stop.")
-
-    # 持续运行以保持主进程
+    print("[INFO] 所有服务已启动")
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n[INFO] Shutting down all services...")
+        print("\n[INFO] 服务关闭中...")
