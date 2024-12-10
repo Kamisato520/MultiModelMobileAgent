@@ -2,6 +2,7 @@ import subprocess
 from fastapi import FastAPI, HTTPException
 import os
 import json
+from port import get_service_url
 
 app = FastAPI()
 
@@ -13,7 +14,7 @@ if not os.path.exists(CONFIG_FILE):
 with open(CONFIG_FILE, "r") as f:
     config = json.load(f)
 
-adb_path = config.get("adb_path", "adb")  # 获取 adb 路径，默认为 adb
+adb_path = config.get("adb_path", "adb")
 
 def run_adb_command(command: str):
     """

@@ -4,11 +4,12 @@
 
 from fastapi import FastAPI, HTTPException
 import requests
+from port import get_service_url
 
 app = FastAPI()
 
-# 模型服务地址
-MODEL_SERVICE_URL = "https://www.myexample.com/api"
+# 获取模型服务的 URL
+MODEL_SERVICE_URL = get_service_url("model_service")
 
 @app.get("/")
 def read_root():
@@ -34,8 +35,9 @@ def task_status(payload: dict):
     """
     接收任务状态更新，转发至反馈服务记录任务状态
     """
+    FEEDBACK_SERVICE_URL = get_service_url("feedback_service")
     try:
-        response = requests.post("http://localhost:8004/log-feedback", json=payload)
+        response = requests.post(f"{FEEDBACK_SERVICE_URL}/log-feedback", json=payload)
         response.raise_for_status()
         return {"data": response.json()}
     except requests.exceptions.RequestException as e:

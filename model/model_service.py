@@ -6,6 +6,7 @@ import requests
 import json
 from fastapi import FastAPI, HTTPException
 import os
+from port import get_service_url
 
 app = FastAPI()
 
@@ -32,9 +33,10 @@ def process_request(payload: dict):
     # 发送 OCR 请求
     ocr_text = ""
     if screenshot_url:
+        OCR_SERVICE_URL = get_service_url("ocr_service")
         try:
             ocr_response = requests.post(
-                "http://localhost:8006/process-image",
+                f"{OCR_SERVICE_URL}/process-image",
                 json={"image_url": screenshot_url}
             )
             ocr_response.raise_for_status()

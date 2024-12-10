@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from celery import Celery
 import requests
+from port import get_service_url  # 从 port.py 引入获取服务 URL 的函数
 
 app = FastAPI()
 
@@ -11,12 +12,13 @@ celery_app = Celery(
     backend="redis://localhost:6379/0"
 )
 
-MANAGEMENT_API_URL = "https://www.myadmin.com/api"
+# 获取管理 API 服务 URL
+MANAGEMENT_API_URL = get_service_url("task_manager")
 
 @app.post("/schedule-task")
 def schedule_task(payload: dict):
     """
-    调度任务
+    调度任务，接收用户请求，执行后台任务，并返回任务 ID。
     """
     instructions = payload.get("instructions", [])
     if not instructions:
@@ -28,12 +30,13 @@ def schedule_task(payload: dict):
 @celery_app.task(name="tasks.execute_task")
 def execute_task(instructions):
     """
-    执行任务
+    执行任务，按照给定的指令执行相应操作（例如 ADB 操作）。
     """
     results = []
     for instruction in instructions:
         try:
             # 执行 ADB 操作
+            # 示例代码：在实际环境中，应该调用 adb_service 进行操作
             results.append(f"Executed: {instruction}")
         except Exception as e:
             results.append(f"Failed to execute: {str(e)}")
@@ -41,7 +44,7 @@ def execute_task(instructions):
 
 def fetch_task_status(task_id: str):
     """
-    获取任务状态
+    获取任务状态，查询任务在管理系统中的执行状态。
     """
     try:
         response = requests.get(f"{MANAGEMENT_API_URL}/task-status/{task_id}")

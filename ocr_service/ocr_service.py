@@ -5,6 +5,7 @@
 import json
 from fastapi import FastAPI, HTTPException
 from openai import OpenAI
+from port import get_service_url
 
 app = FastAPI()
 
