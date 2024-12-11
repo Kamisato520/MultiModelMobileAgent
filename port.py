@@ -11,7 +11,7 @@ SERVICES = {
         "port": 8000,
         "description": "API 网关，用于处理前端请求并协调后端服务"
     },
-    "model_service": {
+    "model": {
         "host": "127.0.0.1",
         "port": 8001,
         "description": "模型服务，用于调用大模型生成响应指令"
@@ -26,12 +26,12 @@ SERVICES = {
         "port": 8006,
         "description": "OCR 服务，用于图片文字识别"
     },
-    "feedback_service": {
+    "feedback": {
         "host": "127.0.0.1",
         "port": 8004,
         "description": "反馈服务，用于记录任务的执行反馈"
     },
-    "task_manager": {
+    "task_scheduler": {
         "host": "127.0.0.1",
         "port": 8003,
         "description": "任务管理服务，用于处理任务的调度和状态管理"
@@ -42,6 +42,7 @@ SERVICES = {
         "description": "云存储服务，用于文件上传和下载"
     }
 }
+
 
 # 获取服务地址
 def get_service_url(service_name: str) -> str:
@@ -57,4 +58,4 @@ def get_service_url(service_name: str) -> str:
 
 # 示例：获取 API 网关的 URL
 if __name__ == "__main__":
-    print(get_service_url("api_gateway"))  # 输出：http://127.0.0.1:8000
+    print(get_service_url("api_gateway"))

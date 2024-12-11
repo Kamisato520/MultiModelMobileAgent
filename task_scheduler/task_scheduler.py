@@ -13,8 +13,14 @@ celery_app = Celery(
 )
 
 # 获取管理 API 服务 URL
-MANAGEMENT_API_URL = get_service_url("task_manager")
-
+MANAGEMENT_API_URL = get_service_url("task_scheduler")
+@app.get("/")
+def read_root():
+    """
+    根路径，用于确认服务是否正常运行。
+    """
+    
+    return {"message": "Task Manager Service is running"}
 @app.post("/schedule-task")
 def schedule_task(payload: dict):
     """

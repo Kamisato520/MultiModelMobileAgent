@@ -9,7 +9,7 @@ from port import get_service_url
 app = FastAPI()
 
 # 获取模型服务的 URL
-MODEL_SERVICE_URL = get_service_url("model_service")
+MODEL_SERVICE_URL = get_service_url("model")
 
 @app.get("/")
 def read_root():

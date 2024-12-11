@@ -2,27 +2,29 @@
 # 该文件负责接收图片 URL，调用 OCR 模型（qwen-vl-ocr）进行文字识别。
 # 处理完的 OCR 结果将返回给调用方，供大模型进一步处理。
 
+import os
 import json
 from fastapi import FastAPI, HTTPException
 from openai import OpenAI
-from port import get_service_url
 
 app = FastAPI()
 
-# 加载配置文件
+# 使用绝对路径加载配置文件
+config_path = os.path.join(os.path.dirname(__file__), "config.json")
 try:
-    with open("config.json", "r") as f:
+    with open(config_path, "r") as f:
         config = json.load(f)
 except Exception as e:
     raise RuntimeError(f"配置文件加载失败：{e}")
 
+# 初始化 OpenAI 客户端
 try:
     client = OpenAI(
         api_key=config["api_key"],
         base_url=config["base_url"]
     )
 except Exception as e:
-    raise RuntimeError(f"OpenAI 客户端初始化失败：{e}")
+    raise RuntimeError(f"初始化 OpenAI 客户端失败：{e}")
 
 @app.post("/process-image")
 def process_image(payload: dict):
