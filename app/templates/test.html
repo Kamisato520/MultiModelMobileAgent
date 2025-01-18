@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+        }
+        textarea {
+            flex-grow: 1;
+            min-height: 100px;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLM交互测试</h1>
+        
+        <div class="input-section">
+            <textarea id="input" placeholder="请输入要发送给模型的文本..."></textarea>
+            <button onclick="sendRequest()">发送</button>
+        </div>
+        
+        <div>
+            <h3>输入内容：</h3>
+            <div id="inputDisplay" class="output"></div>
+        </div>
+        
+        <div>
+            <h3>模型响应：</h3>
+            <div id="response" class="output"></div>
+        </div>
+        
+        <div>
+            <h3>执行步骤：</h3>
+            <div id="steps" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        async function sendRequest() {
+            const input = document.getElementById('input').value;
+            const inputDisplay = document.getElementById('inputDisplay');
+            const response = document.getElementById('response');
+            const steps = document.getElementById('steps');
+            
+            inputDisplay.textContent = input;
+            response.textContent = '处理中...';
+            steps.textContent = '';
+            
+            try {
+                const res = await fetch('/api/test/llm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ input: input })
+                });
+                
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    response.textContent = JSON.stringify(data, null, 2);
+                    steps.textContent = JSON.stringify(data.execution_steps, null, 2);
+                } else {
+                    response.innerHTML = `<span class="error">错误: ${data.error}</span>`;
+                }
+            } catch (error) {
+                response.innerHTML = `<span class="error">请求失败: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html> 
