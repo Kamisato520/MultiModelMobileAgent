@@ -1,6 +1,0 @@
-fastapi
-uvicorn
-celery
-redis
-google-cloud-storage
-python-dotenv
