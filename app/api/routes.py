@@ -1,5 +1,5 @@
 # backend/app/api/routes.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from app.services.automation_service import AutomationService
 from app.services.llm_service import LLMService
 from app.models.task import Task
@@ -106,3 +106,34 @@ async def execute_task(task_id):
         task.status = 'failed'
         task.result = {'error': str(e)}
         db.session.commit()
+
+# 添加测试页面路由
+@api.route('/test')
+def test_page():
+    return render_template('test.html')
+
+# 添加测试API路由
+@api.route('/test/llm', methods=['POST'])
+async def test_llm():
+    try:
+        data = request.json
+        text_input = data.get('input')
+        
+        if not text_input:
+            return jsonify({'error': 'No input provided'}), 400
+            
+        # 调用LLM服务
+        execution_steps = await llm_service.analyze_text_input(text_input)
+        
+        # 返回结果
+        return jsonify({
+            'input': text_input,
+            'execution_steps': execution_steps,
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
