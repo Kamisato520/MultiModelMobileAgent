@@ -107,31 +107,74 @@ async def execute_task(task_id):
         task.result = {'error': str(e)}
         db.session.commit()
 
-# 添加测试页面路由
-@api.route('/test')
-def test_page():
-    return render_template('test.html')
+# 自动化测试
+@api.route('/test/auto', methods=['POST'])
+async def create_task_test(task_data):
+    # 模拟调用 create_task 接口
+    from flask import Flask, request
+    app = Flask(__name__)
+    with app.test_request_context('/tasks', method='POST', json=task_data):
+        response = await create_task()
+        return response.get_json()
+    
+def get_task_test(task_id):
+    # 模拟调用 get_task 接口
+    from flask import Flask, request
+    app = Flask(__name__)
+    with app.test_request_context(f'/tasks/{task_id}', method='GET'):
+        response = get_task(task_id)
+        return response.get_json()
 
-# 添加测试API路由
-@api.route('/test/llm', methods=['POST'])
-async def test_llm():
+async def wait_for_task_completion(task_id, timeout=30):
+    import time
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        task = Task.query.get(task_id)
+        if task.status in ['completed', 'failed']:
+            break
+        await asyncio.sleep(1)
+    else:
+        raise TimeoutError(f"Task {task_id} did not complete within {timeout} seconds")
+async def test_auto():
     try:
         data = request.json
+        device_id = data.get('device_id')
+        input_type = data.get('input_type', 'text')  # 默认为文本输入
         text_input = data.get('input')
-        
-        if not text_input:
-            return jsonify({'error': 'No input provided'}), 400
-            
-        # 调用LLM服务
-        execution_steps = await llm_service.analyze_text_input(text_input)
-        
-        # 返回结果
+
+        # 检查必要参数
+        if not device_id or not text_input:
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # 创建任务
+        task_data = {
+            'device_id': device_id,
+            'input_type': input_type,
+            'input': text_input
+        }
+        create_response = await create_task_test(task_data)
+
+        # 检查任务是否创建成功
+        if create_response.get('status') != 'pending':
+            return jsonify({
+                'error': 'Failed to create task',
+                'response': create_response
+            }), 500
+
+        task_id = create_response.get('task_id')
+
+        # 等待任务执行完成
+        await wait_for_task_completion(task_id)
+
+        # 获取任务结果
+        task_result = get_task_test(task_id)
+
         return jsonify({
-            'input': text_input,
-            'execution_steps': execution_steps,
-            'status': 'success'
+            'status': 'success',
+            'task_id': task_id,
+            'result': task_result
         })
-        
+
     except Exception as e:
         return jsonify({
             'error': str(e),
