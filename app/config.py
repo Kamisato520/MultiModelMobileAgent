@@ -1,6 +1,7 @@
 # backend/app/config.py
 import os
 import secrets
+from datetime import timedelta
 
 class Config:
     # 生成安全的随机密钥
@@ -36,6 +37,23 @@ class Config:
     }
     
     WEBSOCKET_PORT = 8765
+
+    # 安全相关配置
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'your-jwt-secret'
+    
+    # 会话配置
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    
+    # CORS配置
+    CORS_ORIGINS = ['http://localhost:3000']  # 允许的前端域名
+    
+    # 密码策略
+    PASSWORD_MIN_LENGTH = 8
+    PASSWORD_REQUIRE_NUMBERS = True
+    PASSWORD_REQUIRE_SPECIAL_CHARS = True
 
 # 生产环境配置
 class ProductionConfig(Config):
